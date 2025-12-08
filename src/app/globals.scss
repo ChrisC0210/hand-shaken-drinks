@@ -1,0 +1,35 @@
+// 引入 SCSS 變數和 mixins（使用 @use，必須放在檔案最上面）
+@use "../styles/theme/variables" as *;
+@use "../styles/mixins/breakpoints" as *;
+
+// 引入元件樣式
+@use "../styles/components/button" as *;
+@use "../styles/components/card" as *;
+
+@import "tailwindcss";
+
+
+@layer components {
+
+	// Tailwind 自訂主題
+	:root {
+		--color-brand: #ff6b6b;
+		--font-heading: "Poppins", sans-serif;
+	}
+
+	// SCSS 變數範例
+	$primary-color: #3b82f6;
+
+	// 使用 SCSS 的巢狀寫法
+	.card {
+		background-color: $primary-color;
+		border-radius: 0.5rem;
+		padding: 1rem;
+
+		&:hover {
+			background-color: darken($primary-color, 10%);
+		}
+	}
+}
+
+/* stylelint-enable at-rule-no-unknown */
