@@ -1,9 +1,13 @@
 "use client";
 // https://www.hyperui.dev/
 import { useRef, useState } from "react";
+import CountsTable from "./list/CountsTable";
+import AvgInvoiceTable from "./list/AvgInvoiceTable";
+import RevenueShare from "./list/RevenueShare";
+import CitySummaryTable from "./list/CitySummaryTable";
 
 export default function Board() {
-	const tabs = ["各縣市飲料店家數", "每家飲料店平均發票金額", "飲料占餐飲營收比例"];
+	const tabs = ["綜合縣市指標", "各縣市飲料店家數", "每家飲料店平均發票金額", "飲料占餐飲營收比例"];
 	const [active, setActive] = useState(0);
 	const tabsRef = useRef<Array<HTMLButtonElement | null>>([]);
 	const touchStartX = useRef<number | null>(null);
@@ -43,6 +47,7 @@ export default function Board() {
 	return (
 		<>
 			<section className="container mx-auto p-6">
+				<h1 className="text-2xl md:text-3xl text-center font-semibold text-gray-900 dark:text-white mb-4">台灣飲料店 / 手搖飲市場分析</h1>
 				<div className="border-b-2 border-black">
 					<div role="tablist" aria-label="Sample Tabs" className="-mb-0.5 flex">
 						{tabs.map((label, i) => (
@@ -57,7 +62,7 @@ export default function Board() {
 								onClick={() => setActive(i)}
 								onKeyDown={(e) => onKeyDown(e, i)}
 								className={
-									"border-2 px-6 py-2 font-semibold focus:ring-2 focus:outline-0 rounded-none " +
+									"cursor-pointer border-2 px-6 py-2 font-semibold focus:ring-2 focus:outline-0 rounded-none " +
 									(active === i
 										? "border-black text-white"
 										: "border-transparent hover:bg-black hover:text-white")
@@ -104,12 +109,12 @@ export default function Board() {
 							touchCurrentX.current = null;
 						}}
 					>
-						<p>
-							{i === 0 &&
-								"各縣市飲料店家數表格內容"}
-							{i === 1 && "每家飲料店平均發票金額表格內容"}
-							{i === 2 && "飲料占餐飲營收比例表格內容"}
-						</p>
+						<div>
+							{i === 0 && <CountsTable />}
+							{i === 1 && <AvgInvoiceTable />}
+							{i === 2 && <RevenueShare />}
+							{i === 3 && <CitySummaryTable />}
+						</div>
 					</div>
 				))}
 			</section>

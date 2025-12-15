@@ -1,0 +1,12 @@
+{
+    "json.schemas": [
+
+        
+    ],
+    "mermaid.theme": "neutral",
+    "markdown-preview-enhanced.mermaidTheme": "neutral",
+    "markdown-preview-enhanced.codeBlockTheme": "github.css",
+    "files.associations": {
+        "*.mmd": "mermaid"
+    }
+}
