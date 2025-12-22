@@ -13,7 +13,19 @@ type CitySummary = {
   beverageSharePercent?: number | null;
 };
 
-function pickNumber(v: any) {
+type SalesRecord = {
+  county_name?: string;
+  county?: string;
+  city?: string;
+  avg_restaurant_sales_per_shop?: number;
+  avg_sales_per_restaurant?: number;
+  avg_restaurant_sales?: number;
+  info_month?: string;
+  avg_invoice?: number;
+  avg_invoice_latest?: number;
+};
+
+function pickNumber(v: unknown) {
   if (v === null || v === undefined) return null;
   const n = Number(v);
   return Number.isNaN(n) ? null : n;
@@ -36,8 +48,8 @@ export async function GET() {
 
     const map = new Map<string, CitySummary>();
 
-    // avg invoice
-    (avgRes.data ?? []).forEach((r: any) => {
+    // avg sales per shop (v_gov_fnb_sales or v_gov_fnb_sales view fields)
+    (salesRes.data ?? []).forEach((r: SalesRecord) => {
       const city = r.city ?? r.county_name ?? r.county ?? "未知";
       map.set(city, {
         ...(map.get(city) ?? { city }),
@@ -46,9 +58,9 @@ export async function GET() {
     });
 
     // avg sales per shop (v_gov_fnb_sales or v_gov_fnb_sales view fields)
-    (salesRes.data ?? []).forEach((r: any) => {
+    (salesRes.data ?? []).forEach((r: SalesRecord) => {
       const city = r.county_name ?? r.city ?? "未知";
-      const existing = map.get(city) ?? { city };
+      const existing: CitySummary = map.get(city) ?? { city };
       // try multiple candidate fields
       const val = r.avg_restaurant_sales_per_shop ?? r.avg_sales_per_restaurant ?? r.avg_restaurant_sales;
       existing.avgSalesPerShop = pickNumber(val);
@@ -56,17 +68,17 @@ export async function GET() {
     });
 
     // counts
-    (countsRes.data ?? []).forEach((r: any) => {
+    (countsRes.data ?? []).forEach((r: { city?: string; county_name?: string; beverage_company_count?: number; count?: number }) => {
       const city = r.city ?? r.county_name ?? "未知";
-      const existing = map.get(city) ?? { city };
+      const existing: CitySummary = map.get(city) ?? { city };
       existing.beverageCompanyCount = pickNumber(r.beverage_company_count ?? r.count);
       map.set(city, existing);
     });
 
     // share percent
-    (shareRes.data ?? []).forEach((r: any) => {
+    (shareRes.data ?? []).forEach((r: { city?: string; county_name?: string; beverage_share_percent?: number; beverage_share?: number }) => {
       const city = r.city ?? r.county_name ?? "未知";
-      const existing = map.get(city) ?? { city };
+      const existing: CitySummary = map.get(city) ?? { city };
       existing.beverageSharePercent = pickNumber(r.beverage_share_percent ?? r.beverage_share);
       map.set(city, existing);
     });
@@ -75,8 +87,9 @@ export async function GET() {
     const result = Array.from(map.values()).sort((a, b) => (b.avgInvoice ?? 0) - (a.avgInvoice ?? 0));
 
     return NextResponse.json(result);
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("city-summary error:", err);
-    return NextResponse.json({ error: err?.message ?? "Server error" }, { status: 500 });
+    const message = err instanceof Error ? err.message : "Server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
